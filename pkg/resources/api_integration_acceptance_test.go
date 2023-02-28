@@ -28,6 +28,7 @@ func TestAcc_ApiIntegration(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("snowflake_api_integration.test_aws_int", "name", apiIntNameAWS),
 					resource.TestCheckResourceAttr("snowflake_api_integration.test_aws_int", "api_provider", "aws_api_gateway"),
+					resource.TestCheckResourceAttr("snowflake_api_integration.test_aws_int", "comment", "acceptance test"),
 					resource.TestCheckResourceAttrSet("snowflake_api_integration.test_aws_int", "created_on"),
 					resource.TestCheckResourceAttrSet("snowflake_api_integration.test_aws_int", "api_aws_iam_user_arn"),
 					resource.TestCheckResourceAttrSet("snowflake_api_integration.test_aws_int", "api_aws_external_id"),
@@ -39,6 +40,7 @@ func TestAcc_ApiIntegration(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("snowflake_api_integration.test_azure_int", "name", apiIntNameAzure),
 					resource.TestCheckResourceAttr("snowflake_api_integration.test_azure_int", "api_provider", "azure_api_management"),
+					resource.TestCheckResourceAttr("snowflake_api_integration.test_azure_int", "comment", "acceptance test"),
 					resource.TestCheckResourceAttrSet("snowflake_api_integration.test_azure_int", "created_on"),
 					resource.TestCheckResourceAttrSet("snowflake_api_integration.test_azure_int", "azure_multi_tenant_app_name"),
 					resource.TestCheckResourceAttrSet("snowflake_api_integration.test_azure_int", "azure_consent_url"),
@@ -50,6 +52,7 @@ func TestAcc_ApiIntegration(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("snowflake_api_integration.test_gcp_int", "name", apiIntNameGCP),
 					resource.TestCheckResourceAttr("snowflake_api_integration.test_gcp_int", "api_provider", "google_api_gateway"),
+					resource.TestCheckResourceAttr("snowflake_api_integration.test_gcp_int", "comment", "acceptance test"),
 					resource.TestCheckResourceAttrSet("snowflake_api_integration.test_gcp_int", "created_on"),
 					resource.TestCheckResourceAttrSet("snowflake_api_integration.test_gcp_int", "google_audience"),
 				),
@@ -66,6 +69,7 @@ func apiIntegrationConfigAWS(name string, prefixes []string) string {
 		api_aws_role_arn = "arn:aws:iam::000000000001:/role/test"
 		api_allowed_prefixes = %q
 		api_key = "12345"
+		comment = "acceptance test"
 		enabled = true
 	}
 	`, name, prefixes)
@@ -80,6 +84,7 @@ func apiIntegrationConfigAzure(name string, prefixes []string) string {
 		azure_ad_application_id = "7890"
 		api_allowed_prefixes = %q
 		api_key = "12345"
+		comment = "acceptance test"
 		enabled = true
 	}
 	`, name, prefixes)
@@ -92,6 +97,7 @@ func apiIntegrationConfigGCP(name string, prefixes []string) string {
 		api_provider = "google_api_gateway"
 	    google_audience = "api-gateway-id-123456.apigateway.gcp-project.cloud.goog"
 		api_allowed_prefixes = %q
+		comment = "acceptance test"
 		enabled = true
 	}
 	`, name, prefixes)

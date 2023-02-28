@@ -95,6 +95,10 @@ var apiIntegrationSchema = map[string]*schema.Schema{
 		Default:     true,
 		Description: "Specifies whether this API integration is enabled or disabled. If the API integration is disabled, any external function that relies on it will not work.",
 	},
+	"comment": {
+		Type:        schema.TypeString,
+		Optional:    true,
+	},
 	"created_on": {
 		Type:        schema.TypeString,
 		Computed:    true,
@@ -138,6 +142,10 @@ func CreateAPIIntegration(d *schema.ResourceData, meta interface{}) error {
 		stmt.SetString("API_KEY", d.Get("api_key").(string))
 	}
 
+	if _, ok := d.GetOk("comment"); ok {
+		stmt.SetString("COMMENT", d.Get("comment").(string))
+	}
+
 	// Now, set the API provider
 	if err := setAPIProviderSettings(d, stmt); err != nil {
 		return err
@@ -178,6 +186,10 @@ func ReadAPIIntegration(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if err := d.Set("name", s.Name.String); err != nil {
+		return err
+	}
+
+	if err := d.Set("comment", s.Comment.String); err != nil {
 		return err
 	}
 
@@ -270,6 +282,11 @@ func UpdateAPIIntegration(d *schema.ResourceData, meta interface{}) error {
 	if d.HasChange("api_key") {
 		runSetStatement = true
 		stmt.SetString("API_KEY", d.Get("api_key").(string))
+	}
+
+	if d.HasChange("comment") {
+		runSetStatement = true
+		stmt.SetString("COMMENT", d.Get("comment").(string))
 	}
 
 	// We need to UNSET this if we remove all api blocked prefixes.
