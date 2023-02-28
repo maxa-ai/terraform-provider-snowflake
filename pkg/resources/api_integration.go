@@ -21,7 +21,7 @@ var apiIntegrationSchema = map[string]*schema.Schema{
 	"api_provider": {
 		Type:         schema.TypeString,
 		Required:     true,
-		ValidateFunc: validation.StringInSlice([]string{"aws_api_gateway", "aws_private_api_gateway", "azure_api_management", "aws_gov_api_gateway", "aws_gov_private_api_gateway"}, false),
+		ValidateFunc: validation.StringInSlice([]string{"aws_api_gateway", "aws_private_api_gateway", "azure_api_management", "aws_gov_api_gateway", "aws_gov_private_api_gateway", "google_api_gateway"}, false),
 		Description:  "Specifies the HTTPS proxy service type.",
 	},
 	"api_aws_role_arn": {
@@ -64,6 +64,12 @@ var apiIntegrationSchema = map[string]*schema.Schema{
 		Type:     schema.TypeString,
 		Computed: true,
 	},
+    "google_audience": {
+        Type:        schema.TypeString,
+        Optional:    true,
+        Default:     "",
+        Description: "The audience claim when generating the JWT (JSON Web Token) to authenticate to the Google API Gateway.",
+    },
 	"api_allowed_prefixes": {
 		Type:        schema.TypeList,
 		Elem:        &schema.Schema{Type: schema.TypeString},
@@ -230,6 +236,10 @@ func ReadAPIIntegration(d *schema.ResourceData, meta interface{}) error {
 			if err := d.Set("azure_multi_tenant_app_name", v.(string)); err != nil {
 				return err
 			}
+		case "GOOGLE_AUDIENCE":
+			if err := d.Set("google_audience", v.(string)); err != nil {
+				return err
+			}
 		default:
 			log.Printf("[WARN] unexpected api integration property %v returned from Snowflake", k)
 		}
@@ -294,6 +304,10 @@ func UpdateAPIIntegration(d *schema.ResourceData, meta interface{}) error {
 			runSetStatement = true
 			stmt.SetString("AZURE_AD_APPLICATION_ID", d.Get("azure_ad_application_id").(string))
 		}
+		if d.HasChange("google_audience") {
+			runSetStatement = true
+			stmt.SetString("GOOGLE_AUDIENCE", d.Get("google_audience").(string))
+		}
 	}
 
 	if runSetStatement {
@@ -333,6 +347,12 @@ func setAPIProviderSettings(data *schema.ResourceData, stmt snowflake.SettingBui
 			return fmt.Errorf("if you use the Azure api provider you must specify an azure_ad_application_id")
 		}
 		stmt.SetString(`AZURE_AD_APPLICATION_ID`, v.(string))
+	case "google_api_gateway":
+        v, ok := data.GetOk("google_audience")
+        if !ok {
+            return fmt.Errorf("if you use GCP api provider you must specify a google_audience")
+        }
+        stmt.SetString(`GOOGLE_AUDIENCE`, v.(string))
 	default:
 		return fmt.Errorf("unexpected provider %v", apiProvider)
 	}
